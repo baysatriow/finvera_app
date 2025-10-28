@@ -1,15 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-md mx-auto mt-12 bg-white p-8 shadow-lg rounded-xl">
-    <h2 class="text-2xl font-bold text-center mb-6">Informasi Pribadi</h2>
+<div class="fin-auth-wrapper">
+
+  <div class="fin-auth-card">
+
+    {{-- Progress --}}
+    <div class="fin-progress-wrap">
+      <div class="fin-progress-label">Langkah 2 dari 2</div>
+      <div class="fin-progress-bar-bg">
+        <div class="fin-progress-bar-inner step2"></div>
+      </div>
+    </div>
+
+    <div class="fin-auth-title">Buat Akun Baru</div>
+    <div class="fin-auth-subtitle">
+      Isi informasi akun anda untuk memulai
+    </div>
+
     <form method="POST" action="{{ route('register.step2.post') }}">
-        @csrf
-        <input type="date" name="date_of_birth" placeholder="Tanggal Lahir" class="border p-2 w-full rounded" required>
-        <input name="occupation" placeholder="Pekerjaan" class="border p-2 w-full mt-3 rounded" required>
-        <input name="monthly_income" placeholder="Pendapatan Bulanan" class="border p-2 w-full mt-3 rounded" required>
-        <textarea name="address" placeholder="Alamat Lengkap" class="border p-2 w-full mt-3 rounded" required></textarea>
-        <button class="w-full bg-green-700 text-white p-3 mt-4 rounded hover:bg-green-800">Daftar Akun</button>
+      @csrf
+
+      <div class="mb-3">
+        <label class="fin-label">Tanggal Lahir</label>
+        <input type="date" name="date_of_birth" class="form-control fin-form-control" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="fin-label">Pekerjaan</label>
+        <input type="text" name="occupation" class="form-control fin-form-control" placeholder="Masukkan pekerjaan" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="fin-label">Pendapatan Bulanan</label>
+        <input type="number" name="monthly_income" class="form-control fin-form-control" placeholder="Rp" required />
+      </div>
+
+      <div class="mb-4">
+        <label class="fin-label">Alamat Lengkap</label>
+        <textarea name="address" class="form-control fin-form-control" rows="3" placeholder="Masukkan alamat lengkap (jalan, kota, provinsi, kode pos)" required></textarea>
+      </div>
+
+      <button type="submit" class="btn fin-submit-btn">
+        Daftar Akun
+      </button>
+
+      <div class="mt-3 fin-terms-text">
+        Dengan mendaftar anda menyetujui
+        <a href="#">syarat &amp; ketentuan</a> dan
+        <a href="#">kebijakan privasi</a>
+      </div>
     </form>
+  </div>
+
 </div>
 @endsection

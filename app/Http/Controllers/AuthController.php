@@ -25,7 +25,7 @@ class AuthController extends Controller
             'phone_number' => 'required|string|max:20',
         ]);
 
-        // Simpan data ke session dulu (karena ini step 1)
+        // simpan data sementara ke session
         $request->session()->put('register_data', $request->only([
             'first_name', 'last_name', 'email', 'username', 'password', 'phone_number'
         ]));
@@ -53,6 +53,7 @@ class AuthController extends Controller
 
         $step1 = $request->session()->get('register_data');
 
+        // create user
         $user = User::create([
             ...$step1,
             'password' => Hash::make($step1['password']),
@@ -62,13 +63,21 @@ class AuthController extends Controller
             'address' => $request->address,
             'status' => 'active',
             'role' => 'borrower',
+            // optional default
+            'credit_score' => 500,
+            'kyc_status' => 'not_verified',
         ]);
 
+        // hapus data sementara register
         $request->session()->forget('register_data');
 
+        // langsung login user baru
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Akun berhasil dibuat!');
+        // kasih flash message untuk SweetAlert
+        return redirect()
+            ->route('home')
+            ->with('success', 'Akun berhasil dibuat! Selamat datang di Finvera 👋');
     }
 
     public function showLogin()
@@ -84,12 +93,22 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])
-            || Auth::attempt(['username' => $credentials['username'], 'password' => $credentials['password']])) {
+        // coba login pakai email
+        if (
+            Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']]) ||
+            Auth::attempt(['username' => $credentials['username'], 'password' => $credentials['password']])
+        ) {
             $request->session()->regenerate();
-            return redirect('/')->with('success', 'Login berhasil!');
+
+            return redirect()
+                ->route('home')
+                ->with('success', 'Login berhasil! Senang bertemu lagi 🙌');
         }
 
-        return back()->withErrors(['login' => 'Kredensial salah!'])->onlyInput('email');
+        return back()
+            ->withErrors([
+                'login' => 'Kredensial salah!',
+            ])
+            ->onlyInput('email');
     }
 }

@@ -16,8 +16,12 @@ use App\Http\Controllers\ProductController;
 
 // Public Home
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard.index');
+    }
     return view('home');
 })->name('home');
+
 
 // AUTH (Guest Only)
 Route::middleware('guest')->group(function () {
@@ -64,10 +68,3 @@ Route::middleware(['auth'])->group(function () {
     // Products CRUD
     Route::resource('products', ProductController::class);
 });
-
-// Redirect after login status check
-Route::get('/redirect-after-login', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard.index')
-        : redirect()->route('home');
-})->name('redirect.after.login');

@@ -101,7 +101,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             return redirect()
-                ->route('home')
+                ->route('dashboard.index')
                 ->with('success', 'Login berhasil! Senang bertemu lagi 🙌');
         }
 

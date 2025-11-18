@@ -9,22 +9,41 @@
       Silakan masuk untuk melanjutkan
     </div>
 
-    <form method="POST" action="{{ route('login.post') }}">
+    <form method="POST" action="{{ route('login') }}">
       @csrf
 
-      <div class="mb-3">
-        <label class="fin-label">Nama Pengguna</label>
-        <input type="text" name="username" class="form-control fin-form-control" placeholder="Masukkan nama pengguna" />
-      </div>
+      @error('login')
+        <div class="alert alert-danger small py-2 mb-3 text-center rounded-3 border-0">
+            <i class="bi bi-exclamation-circle me-1"></i> {{ $message }}
+        </div>
+      @enderror
 
       <div class="mb-3">
-        <label class="fin-label">Alamat Email</label>
-        <input type="email" name="email" class="form-control fin-form-control" placeholder="Masukkan alamat email" />
+        <label class="fin-label">Email atau Username</label>
+        <input type="text"
+               name="username"
+               class="form-control fin-form-control @error('username') is-invalid @enderror"
+               placeholder="Masukkan email atau username Anda"
+               value="{{ old('username') }}"
+               required
+               autofocus />
+
+        @error('username')
+            <div class="invalid-feedback small">
+                {{ $message }}
+            </div>
+        @enderror
       </div>
 
       <div class="mb-4">
-        <label class="fin-label">Kata Sandi</label>
-        <input type="password" name="password" class="form-control fin-form-control" placeholder="Masukkan kata sandi" />
+        <div class="d-flex justify-content-between">
+            <label class="fin-label">Kata Sandi</label>
+        </div>
+        <input type="password"
+               name="password"
+               class="form-control fin-form-control @error('password') is-invalid @enderror"
+               placeholder="Masukkan kata sandi"
+               required />
       </div>
 
       <button type="submit" class="btn fin-submit-btn">
@@ -34,7 +53,7 @@
       <div class="text-center mt-3" style="font-size:0.9rem;">
         Belum punya akun?
         <a href="{{ route('register.step1') }}" class="text-decoration-none" style="color:var(--finvera-green-mid); font-weight:500;">
-          Klik disini
+          Daftar disini
         </a>
       </div>
     </form>

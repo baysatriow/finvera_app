@@ -9,6 +9,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    // ================= REGISTER STEP 1 =================
     public function showRegisterStep1()
     {
         return view('auth.register-step1');
@@ -25,7 +26,7 @@ class AuthController extends Controller
             'phone_number' => 'required|string|max:20',
         ]);
 
-        // simpan data sementara ke session
+        // Simpan data sementara ke session
         $request->session()->put('register_data', $request->only([
             'first_name', 'last_name', 'email', 'username', 'password', 'phone_number'
         ]));
@@ -33,6 +34,7 @@ class AuthController extends Controller
         return redirect()->route('register.step2');
     }
 
+    // ================= REGISTER STEP 2 =================
     public function showRegisterStep2(Request $request)
     {
         if (!$request->session()->has('register_data')) {
@@ -53,33 +55,34 @@ class AuthController extends Controller
 
         $step1 = $request->session()->get('register_data');
 
-        // create user
+        // Create User Baru
         $user = User::create([
-            ...$step1,
+            'first_name' => $step1['first_name'],
+            'last_name' => $step1['last_name'],
+            'email' => $step1['email'],
+            'username' => $step1['username'],
             'password' => Hash::make($step1['password']),
+            'phone_number' => $step1['phone_number'],
             'date_of_birth' => $request->date_of_birth,
             'occupation' => $request->occupation,
             'monthly_income' => $request->monthly_income,
             'address' => $request->address,
             'status' => 'active',
             'role' => 'borrower',
-            // optional default
-            'credit_score' => 500,
+            'credit_score' => 500, // Default score
             'kyc_status' => 'not_verified',
         ]);
 
-        // hapus data sementara register
         $request->session()->forget('register_data');
 
-        // langsung login user baru
         Auth::login($user);
 
-        // kasih flash message untuk SweetAlert
         return redirect()
-            ->route('home')
+            ->route('dashboard.index')
             ->with('success', 'Akun berhasil dibuat! Selamat datang di Finvera 👋');
     }
 
+    // ================= LOGIN =================
     public function showLogin()
     {
         return view('auth.login');
@@ -89,15 +92,12 @@ class AuthController extends Controller
     {
         $credentials = $request->validate([
             'username' => 'required|string',
-            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        // coba login pakai email
-        if (
-            Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']]) ||
-            Auth::attempt(['username' => $credentials['username'], 'password' => $credentials['password']])
-        ) {
+        $fieldType = filter_var($credentials['username'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$fieldType => $credentials['username'], 'password' => $credentials['password']])) {
             $request->session()->regenerate();
 
             return redirect()
@@ -107,8 +107,19 @@ class AuthController extends Controller
 
         return back()
             ->withErrors([
-                'login' => 'Kredensial salah!',
+                'login' => 'Kredensial yang Anda masukkan salah!',
             ])
-            ->onlyInput('email');
+            ->onlyInput('username');
+    }
+
+    // ================= LOGOUT =================
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('success', 'Anda berhasil keluar.');
     }
 }

@@ -14,23 +14,27 @@ use App\Http\Controllers\ProductController;
 |--------------------------------------------------------------------------
 */
 
+// Public Home
+Route::get('/', function () {
+    return view('home');
+})->name('home');
+
 // AUTH (Guest Only)
 Route::middleware('guest')->group(function () {
-    Route::get('/register', [AuthController::class, 'showRegisterStep1'])->name('register.step1');
-    Route::post('/register', [AuthController::class, 'processRegisterStep1']);
+    Route::get('/register/step1', [AuthController::class, 'showRegisterStep1'])->name('register.step1');
+    Route::post('/register/step1', [AuthController::class, 'processRegisterStep1'])->name('register.step1.post');
 
     Route::get('/register/step2', [AuthController::class, 'showRegisterStep2'])->name('register.step2');
-    Route::post('/register/step2', [AuthController::class, 'processRegisterStep2']);
+    Route::post('/register/step2', [AuthController::class, 'processRegisterStep2'])->name('register.step2.post');
 
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'processLogin']);
+    Route::post('/login', [AuthController::class, 'processLogin'])->name('login.post');
 });
 
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout')
     ->middleware('auth');
-
 
 // MAIN APP (Auth Required)
 Route::middleware(['auth'])->group(function () {
@@ -61,9 +65,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('products', ProductController::class);
 });
 
-// Root Redirect
-Route::get('/', function () {
+// Redirect after login status check
+Route::get('/redirect-after-login', function () {
     return auth()->check()
         ? redirect()->route('dashboard.index')
-        : redirect()->route('login');
-})->name('home');
+        : redirect()->route('home');
+})->name('redirect.after.login');
